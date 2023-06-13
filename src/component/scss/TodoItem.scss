@@ -1,6 +1,128 @@
 
+@mixin content-center {  //이거써주고 아래로가서 @include content-center; 적어주자.
+    display: flex; //중앙정렬시작
+    justify-content: center;
+    align-items: center; //중앙정렬끝
+}
+
 .todo-list-item {
     display: flex;
+    align-items: center; //수평정렬
     padding: 12px 0;
-    background: orange;
+
+    &:hover .remove {
+        display: block;
+    }
+
+
+
+    //체크서클을 제어해보자
+    .check-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #9da1a7;
+    font-size: 24px;
+    margin-right: 20px;
+    cursor: pointer;
+
+    // display: flex; //플렉스에서 수직과 수평(즉, 가운데정렬)
+    // justify-content: center;
+    // align-items: center;
+    // 위 3개 주석처리하고
+    @include content-center;
+
+    &.active { //&.설명은 아래있음
+        border: 1px solid #38d9a9;
+        color: #38d9a9;
+    }
+
+
+}
+
+
+    .text {
+    font-size: 21px;
+    color: #495057;
+    flex: 1; //이러면 쓰레기통이 끝에 배치가 되겠지.
+
+
+    /*
+    그리고,
+    TodoItem.js가서
+    className들에다가 active와 finish를 넣어주고,
+    다시 TodoItem.scss와서
+
+    .text .finish{} 로 맥이는게 아니라,
+    .text{} 안에 &.finish{} 로 지목할 수 있다!
+    
+    */
+
+
+    &.finish {
+        color: #919396;
+        text-decoration: line-through;
+    }
+
+}
+
+
+
+
+
+    .remove {  //쓰레기통 지목
+    font-size: 28px;
+    cursor: pointer;
+    color: #f51b4f;
+
+    @include content-center;
+    // display: flex; //중앙정렬시작
+    // justify-content: center;
+    // align-items: center; //중앙정렬끝.
+
+    //박스의 중앙정렬을 위해 위3개를 써줬다.
+    //근데 한번에 부를 수 있다. scss에 존재하는 코드가 있다.
+    //일단 위 3개를 주석처리하고 맨위로 가서
+    
+    /*
+    @mixin content-center {
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    //적어주고,
+
+    그리고 다시 와서
+    @include content-center; 써주면 된다.
+}
+    
+    이거 적어주자
+    */
+
+
+    //그리고 쓰레기통은 호버헀을때만 보여야 하니, 기본적으로 숨어있어야한다.
+    display: none;
+
+    //그리고 쓰레기통에 호버도 먹히게 하자
+    &:hover svg {
+        opacity: 0.6; //1이 100%였지? 40%정도 어둡게해보자.
+    }
+
+
+
+
+}
+
+    //호버를 지정하기 위해서는 우리가 지금까지는 여기서
+    // .todo-list-item:hover .remove{ 
+    //     display: block; 
+    // } 이렇게 썼었는데, .todo-list-item { 부분으로가서 호버를 작성해주자.
+
+
+
+
+
+
+
+
+
 }

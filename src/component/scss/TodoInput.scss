@@ -1,0 +1,26 @@
+
+.form-wrapper {
+    background: orange;
+}
+
+.insert-btn {
+    background: #38d9a9;
+
+    z-index: 5; //버튼을 위로 올리려고. 원본보면 todo-template보다 위로 올라와있음
+    cursor: pointer;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 60px;
+
+    position: absolute; //relative안주면 앱솔루트는 전체 화면 따라간다. 근데 relative는 todotemplate.scss에 있다.
+    left: 50%;
+    bottom: 0; //todoTemplate 바닥에 붙음.
+
+    //부모 가운데에 배치하기 위해서는 left50 top50 트랜스폼 트랜스레이트는 X : -50  Y : -50씩.
+    //그럼 가운데로감.
+
+    transform: translate(-50%, 50%); //x는 -50준게 맞는데, translateY는 -50이 아니라 50줬음.
+
+}
+
