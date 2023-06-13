@@ -1,0 +1,35 @@
+//sass파일은 변수 선언도 가능하다.
+//$와함께 쓰면 된다.
+
+$my-dark-gray: #343a40;
+
+//앞으로 #34340을 외울 필요가 없다.
+
+
+
+
+header {
+    padding: 48px 32px 24px;
+    border-bottom: 1px solid #bbb;    
+}
+
+
+h1 {
+    font-size: 36px;
+    // color: #343a40;
+    color: $my-dark-gray;
+}
+
+.day {
+    // mt4px
+    margin-top: 4px;
+    color: #868e96;
+    font-size: 21px;
+}
+
+.tasks-left {
+    color: #20c997;
+    font-size: 18px;
+    margin-top: 40px;
+    font-weight: 700;
+}
