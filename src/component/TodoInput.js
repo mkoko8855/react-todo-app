@@ -4,13 +4,20 @@ import './scss/TodoInput.scss';
 import cn from 'classnames'; //classnames라는 라이브러리를 cn이라는 이름을 지어서 만들었다!
 //import classnames from 'classnames'로 해도됨!
 
-const TodoInput = () => {
+const TodoInput = ({addTodo}) => { //addTodo써주고 아래가서 addTodo(todoText); 써주자.
 
     //입력창이 열리는 여부를 표현하는 상태 변수를 하나 선언하자.
     //버튼의 상태를 관리할 수 있는 것을 표현해보자. (state이다.  리액트에서 상태를 관리할 수 있는 hook 이름은 usestate이다.)
     //usestate는 상태변수값(상태변수명)이랑 setter함수(명)가 무조건 있다. 이 2개의 값을 변수에 담아놓고 사용한다.
     const [open, setOpen] = useState(false); 
     //오픈은 열렸냐 안열렸냐는 boolean으로 처리하면 된다. 그래서 false를 줬다.
+
+
+    //할일 입력창에 입력한 내용을 표현하는 상태값
+    const [todoText, setTodoText] = useState('');
+
+
+
 
     // + 버튼 클릭 시, 이벤트 처리. 이제 사용자가 클릭하면 이 onToggle이 호출된다. 이제 open상태를 변경해줘야지.
     const onToggle = () => {
@@ -43,15 +50,52 @@ const TodoInput = () => {
 
     }
 
+    //submit 이벤트 핸들러
+    const submitHandler = e => {
+        e.preventDefault(); //태그의 기본 기능을 제한.
+      //console.log('폼이 제출됨!');
+
+      //value값 가져오는 것은 input요소를 지목해서 끌고오면 되겟지?
+       //const $input = document.querySelector('.insert-form input');
+        //console.log($input.value);
+      //대충 인풋열어서 아무렇게나 작성하고 엔터누르고 f12확인해보면 asdsa, adfadfa 등 잘 나온다.
+      //근데 할 일을 계속 추가할때가있는데, 기존 작성했던 건 지워야겠지?
+        //$input.value = '';
+
+      //그러나 상태관리는 위처럼 하면 안된다. react에서는 useState로 하는게 안전하다.
+      //위로가서 '할일 입력창에 입력한 내용을 표현하는 상태값' 부분 써주자
+      //const [todoText, setTodoText] = useState(''); 이렇게.
+
+      //console.log(todoText); //작성할때마다 이벤트가 발생된 곳을 알아보기 위해. -> 엔터를 쳤을때 f12에 뜨겠지.
+
+
+      addTodo(todoText); //바로 위 con.log(todoText)를 주석처리하자. 그럼 자식이 부모에게 넘길 수 있다.
+
+
+      setTodoText(''); //기존 입력했었던 내용을 확인하고 이 setTodoText('');로 지워줘야 깔끔하게 입력을 다시 받을 수 있겠지
+      //그러나 렌더링이 안돼서 엔터쳐도 적었던 input창 내용이 지워지지 않는다.
+      //밑으로 가서 onChange={todoChangeHandler} 밑에 value={todoText}도 적어주자
+      //즉, 이 setTodoText('');는 왜적었냐면, 입력이 끝나면 입력창을 비워주기 위해서 작성했다.
+    }
+
+
+     //input change 이벤트 핸들러 함수
+     const todoChangeHandler = e => {
+        //console.log(e.target.value); f12눌러서 확인해보면 input에 작성을 하면 실시간으로 계속 바뀐다.
+        setTodoText(e.target.value); //이거 써주고 바로 위로가서 setTodoText(''); 써주자. 값을 비워주기 위해.
+     }
+
+
+
+
 
     // const showForm = () => { //화살표 함수를 많이 사용하는데, 일반 function 써도됨
        
     //       return 
-        
+
     // }
 
     // const showForm = function(){ 이렇게 일반 function 써도 됨.
-
     // }
 
 
@@ -61,11 +105,13 @@ const TodoInput = () => {
               open && ( //단축평가연산자이다. 즉, and연산자이다. 좌항과 우황이 트루여야 전체 결과가 트루이다. 한쪽이라도 false면 false이다.
               //즉, open은 불린타입인데, open이 true면 안에있는 내용이 truthy한 값을 띠게 되면서 전체결과가 true가되면서 내용이 return이된다. open이 false면 한쪽이 false가되니 return이 안된다.
                 <div className='form-wrapper'>
-                    <form className='insert-form'>
+                    <form className='insert-form' onSubmit={submitHandler}>
                         <input
                             type='text'
                             placeholder='할 일을 입력 후, 엔터를 누르세요!'
-                        /> 
+                            onChange = {todoChangeHandler} //쓰고 const todoChangeHandler = e => { 걸어주고 f12눌러서 확인해보면 input에 작성을 하면 실시간으로 계속 바뀐다.
+                            value={todoText} //이거까지 적어줘야 엔터치면 기존에 작성했던 input내용이 지워지고 값을 새롭게 적을 수 있음
+                       /> 
                     </form>
                 </div>
               )
