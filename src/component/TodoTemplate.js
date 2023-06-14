@@ -118,11 +118,42 @@ const TodoTemplate = () => {
           setTodos(todos.filter(todo => todo.id !== id));  //조건을 걸어서 조건에 맞는 요소만 반환해서 새로운 배열로 리턴해주는 filter!
                                                            //즉, 주어진 배열(todos)의 값들을 순회하여 조건에 맞는 요소들만 모아서 새로운 배열로 리턴해준다!
                                                            //즉, todo에는 todos의 요소들이 들어온다. > 객체들이 todo로 들어가면서 id들을 비교하면서 같으면 저 조건식에 false니까 걸러진다. > 내가 삭제하고하는 id를 가진 객체들만 필터링되고 나머진 새로운 배열로 선언되고 setTodos에 전달이 되겠다.
-
-
-        
         }
 
+
+        //할 일 체크 처리 함수
+
+        const checkTodo = id => {
+          console.log(`체크한 Todo id: ${id}`);
+
+          //배열 고차 함수.  
+          //우리가 생각나는 대로 작성해보면,
+          //todos자체를 바로 변환못하니 복사본으로
+          // const copyTodos = [...todos];
+          // for(let cTodo of copyTodos){
+          //   if(cTodo.id === id){
+          //     cTodo.done = !cTodo.done; //기존에 있던 cTodo의 done값을 반전시켰다.
+          //   }
+          // }
+
+          // setTodos(copyTodos); //이거해줘야 화면에 나옴
+          
+          //근데 코드를 더 간결하게 써보자 -> 변화가 됐다는걸 감지시켜야 화면이 리렌더링이 된다.
+          setTodos(todos.map(todo => todo.id === id ? {...todo, 'done': !todo.done} : todo )); //map도 콜백함수를 매개값으로 받는다. 혹시 todo라는 변수로 들어온 id가 같느냐 뭐랑? 체크버튼을 누른 그 id랑 같니? -> 맵이라는 함수를 이용해서 todos의 객체를 받아오고있고, 조건식을 걸엇다. 체크를 누르지 않은 나머지 할일들은 유지하면되고 조건이 트루면 일단 이 트루의 모든 프로퍼티의 값을 그대로 복사해와서 가지고 올껀데, done의 값은 바꿔주겠다는 얘기다.
+        }
+
+
+
+
+        //체크가 안된 할 일의 개수 카운트하기
+        const countRestTodo = () => { //이거 TodoHeader한테줘야됨. done이 false가 몇개인가? 를 세보면 된다.
+
+          // const filteredTodos =  todos.filter(todo => !todo.done);
+          // return filteredTodos.length; 보다 더 짧게
+
+          return todos.filter(todo => !todo.done).length; //이거썼으니 프롭스선언하러가자. 아래 리턴문으로 ㄱㄱ
+          
+        } 
 
 
 
@@ -136,8 +167,8 @@ const TodoTemplate = () => {
 
   return (
     <div className='TodoTemplate'> 
-        <TodoHeader/>
-        <TodoMain todoList={todos} remove={removeTodo}/>
+        <TodoHeader count={countRestTodo}/>
+        <TodoMain todoList={todos} remove={removeTodo} check={checkTodo}/>
         {/*todoMain을 호출하면서 값이날라오겠지. 그거를 TodoMain이 받아야한다. 가서 ()안에 props적어주자*/}
        
         <TodoInput addTodo={addTodo}/> 
