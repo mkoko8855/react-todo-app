@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 
 
-const TodoItem = ({item}) => {
+const TodoItem = ({item, remove}) => {
 
   const {id, title, done} = item; //3개를 item에서 쪼개겠다. -> 변수3개선언되고 각각의 프로퍼티들이 변수에 각각 들어간다. (디스트럭쳐링문법). 즉, 이렇게 넘기자 라는 얘기다.
   //그럼이제 뭔가가들어있겠지? 변수의 값을 다 받았다!
@@ -23,7 +23,7 @@ const TodoItem = ({item}) => {
                                                                     {/* <span className='text'>할 일 어쩌고~~~</span> */}
         <span className={cn('text', {finish: done})}>{title}</span> {/*finish라는건 done에 따라 달리질거야. done이 트루면 액티브와 피니쉬가 둘다 들어간다. 트루면 mddone이라는 아이콘도 들어가겠지*/}
 
-        <div className="remove">                                    {/*여기에는 쓰레기통 아이콘이 들어갈 거임*/}
+        <div className="remove" onClick={() => remove(id)}>         {/*여기에는 쓰레기통 아이콘이 들어갈 거임*/}
             <MdDelete/>
 
         </div>  

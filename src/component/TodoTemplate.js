@@ -110,6 +110,21 @@ const TodoTemplate = () => {
                     //위로가서 복사하는 방법을 적용해보자 바로위에있다~
       }
 
+      //할 일 삭제 처리 함수
+      const removeTodo = id => { //id라는 변수 선언해야한다! 꼭! removeTodo를 todoitem까지 전달해야한다. 일단은 todoMain한테 보내고 props로 전달받은 todomain이 template한테 보내주게해야됨
+          console.log(`삭제 대상 id: ${id}`);
+
+          //map처럼 편하게쓸수있는 방법이 있다.
+          setTodos(todos.filter(todo => todo.id !== id));  //조건을 걸어서 조건에 맞는 요소만 반환해서 새로운 배열로 리턴해주는 filter!
+                                                           //즉, 주어진 배열(todos)의 값들을 순회하여 조건에 맞는 요소들만 모아서 새로운 배열로 리턴해준다!
+                                                           //즉, todo에는 todos의 요소들이 들어온다. > 객체들이 todo로 들어가면서 id들을 비교하면서 같으면 저 조건식에 false니까 걸러진다. > 내가 삭제하고하는 id를 가진 객체들만 필터링되고 나머진 새로운 배열로 선언되고 setTodos에 전달이 되겠다.
+
+
+        
+        }
+
+
+
 
       //setTodos에 변화가 발동할때 렌더링을 진행해주는 함수를 짜자
       useEffect(() => { //useEffect는 실행하고자하는 함수, 두번째는 배열을 받는데, 배열 안에다가 다시 렌더링이 진행 될 때 어떤 상태변수가 렌더링되냐고 할때, 얘만 다시 렌더링해줄 수있는 것이 useEfect이다
@@ -122,7 +137,7 @@ const TodoTemplate = () => {
   return (
     <div className='TodoTemplate'> 
         <TodoHeader/>
-        <TodoMain todoList={todos}/>
+        <TodoMain todoList={todos} remove={removeTodo}/>
         {/*todoMain을 호출하면서 값이날라오겠지. 그거를 TodoMain이 받아야한다. 가서 ()안에 props적어주자*/}
        
         <TodoInput addTodo={addTodo}/> 
