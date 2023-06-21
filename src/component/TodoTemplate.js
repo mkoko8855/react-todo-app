@@ -76,7 +76,7 @@ const TodoTemplate = () => {
 
         const newTodo = {
           //id: makeNewId(), 
-          //title: todoText, //자식(todoInput)이 전달해준 todoText
+          // title: todoText, //자식(todoInput)이 전달해준 todoText
           //done: false
 
           title: todoText //todoText는 todoInput이 보내주는 것이다.그걸 부모가 받아서 객체선언해서 todoText라고해주는것이다.
@@ -92,7 +92,7 @@ const TodoTemplate = () => {
          })
          .then(res => res.json())
          .then(json => {
-         setTodos([json.todos]); 
+         setTodos(json.todos); 
          })
 
       
@@ -221,7 +221,7 @@ const TodoTemplate = () => {
           
         
         //페이지가 렌더링 됨과 동시에 할 일 목록을 요청해서 뿌려주겠다!!
-        fetch(API_BASE_URL, ) //fetch의 첫번째 값으로는 url줬지. 두번째 매개값으로는 요청에 관련된 정보를 객체 형식으로 줌.  근데 여기선 X
+        fetch(API_BASE_URL) //fetch의 첫번째 값으로는 url줬지. 두번째 매개값으로는 요청에 관련된 정보를 객체 형식으로 줌.  근데 여기선 X
           .then(res => res.json()) //그 결과에서 제이슨만 뽑아.
           .then(json => { //제이슨 데이터로 뽑아 낸 것을 어떻게 진행(작성)할지 적자
             console.log(json.todos);
