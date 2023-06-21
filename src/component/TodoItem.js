@@ -15,7 +15,7 @@ const TodoItem = ({item, remove, check}) => {
 
   return (
     <li className='todo-list-item'>
-        <div className={cn('check-circle', {active: done})} onClick={() => check(id)}>   {/*active의 결과는 done에따라 달라질꺼야~*/}
+        <div className={cn('check-circle', {active: done})} onClick={() => check(id, done)}>   {/*active의 결과는 done에따라 달라질꺼야~*/}
                                                                                          {/*이제 done이라는 값이 true냐false냐에 따라 MdDone이라는 아이콘을 표현할지 말지 정할것이다.*/}
             {done && <MdDone/> }                                                         {/*즉, done이 false면 Medone이라는 아이콘은 나오지 않는다.*/}
 
