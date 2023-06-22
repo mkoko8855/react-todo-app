@@ -47,16 +47,16 @@ const TodoTemplate = () => {
 
       
     //에러 자꾸 뜨는건 -> id값 시퀀스 생성 함수로 순차적으로 해결해주자
-    const makeNewId = () => {
+    //const makeNewId = () => {
       //id가 마지막인게 뭔지 알아내야한다. 위에보면 1, 2, 3, 4의 id들이 있는데,
       //가장 마지막인 4잖아? 나중에 db쓰면 오토인크리먼트쓰면 상관없는데 지금은 안되니까..
       //마지막 요소의 index는 항상 length-1 이잖아.
-      if(todos.length === 0) {
-        return 1;
-      }
-      return todos[todos.length - 1].id + 1; //마지막요소의 id값보다 하나 크면돼~ 그러면 안겹치겠지만, 만약 todos가 비어있다면..? 마지막인덱스가없잖아.
+      //if(todos.length === 0) {
+       // return 1;
+      //}
+      //return todos[todos.length - 1].id + 1; //마지막요소의 id값보다 하나 크면돼~ 그러면 안겹치겠지만, 만약 todos가 비어있다면..? 마지막인덱스가없잖아.
                                              //위에서 처리해주자
-    }
+    //}
       
 
 
