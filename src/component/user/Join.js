@@ -1,11 +1,21 @@
-//0622
+//0622 0623
 
 import React, { useState } from 'react'
 import {Button, Container, Grid,
     TextField, Typography, Link} from "@mui/material";
 
+import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL as BASE, USER } from '../../config/host-config';
 
+//http://localhost:8181/api/auth
 const Join = () => {
+
+    //리다이렉트 사용하기
+    const redirection = useNavigate();
+
+
+    const API_BASE_URL = BASE + USER;
+
 
     //상태변수로 회원가입 입력값 관리
     const [userValue, setUserValue] = useState({ //사용자가 아무것도 작성하지 않았을 때의 기본값인 useState값은 
@@ -16,7 +26,7 @@ const Join = () => {
     //유저네임 받으면 userName부분만 채워주고, passWord받아서 검증끝나면 setValue에서 그부분만채워고 ..이런식으로.
     //검증 다 끝나면 위 3가지 값은 json으로 변환해서 서버로 요청 보내자.
     //서버에서는 우리가 준비했던 것으로 확인할 수 있다.
-    
+        
 
 
 
@@ -49,7 +59,7 @@ const Join = () => {
             ...message,
             //userName: msg 원래 이건데 아래껄로 바꾸자.
             [key]: msg
-        })
+        });
 
 
         //입력한 값을 상태변수(state)를 username에 저장해야지
@@ -118,20 +128,89 @@ const Join = () => {
             flag
         });
 
-
-
-
     };
+
+
+    //이메일 중복체크 서버 통신 함수
+    const fetchDuplicateCheck = email => {
+        
+        let msg = '', flag = false;
+        fetch(`${API_BASE_URL}/check?email=${email}`)
+
+
+        //.then(res => res.json()) //res.json을 꺼내겠다.
+        //.then(json => { //json데이터 받아서 한번까보겟다. 콘솔먼저보자.
+        //    console.log(json);
+        //    if(json){ //트루가오겠지. 즉, 존재한다니까 못쓴다고해줘야지
+        //        msg = '이메일이 중복되었습니다.!';
+        //    } else {
+        //        msg = '사용 가능한 이메일 입니다.';
+        //        flag = true;
+        //    }
+        //})
+        //.catch(err => {
+        //    console.log("서버 통신이 원할하지않습니다."); //예외처리도 가능하다.
+        //});  에러나서 주석. 아래껄로 하자.
+
+        .then(res => {
+            if(res.status === 200) {
+                return res.json();
+            }
+        })
+        .then(json => {
+            console.log(json);
+            if(json) {
+                msg = '이메일이 중복되었습니다!';
+            } else {
+                msg = '사용 가능한 이메일 입니다.';
+                flag = true;
+            }
+
+
+
+        //나와서, 따로 부를게있음
+        setUserValue({...userValue, email: email});
+        setMessage({...message, email: msg});
+        setCorrect({...correct, email: flag});
+    })
+    .catch(err => {
+        console.log('서버 통신이 원활하지 않습니다.');
+    });
+};
+
+
+    
+
+
 
 
     //이메일 입력창 체인지 이벤트 핸들러
     const emailHandler = e => {
         const inputVal = e.target.value;
 
-        setUserValue({
-            ...userValue,
-            email: inputVal
-        });
+        //중복검사 진행 전에, 값이 유효한지 체크해야지. 정규표현식이 필요하겠지
+        const emailRegex = /^[a-z0-9\.\-_]+@([a-z0-9\-]+\.)+[a-z]{2,6}$/;
+        
+        let msg, flag = false;
+        if(!inputVal){
+            //아무것도안쓴거니
+            msg = '이메일은 필수값입니다.';
+        } else if(!emailRegex.test(inputVal)){ //내가 지정한 정규표현식이 유효하지않으면?
+            msg = '이메일 형식이 아닙니다.';
+        } else {
+            //이메일형식은 통과했으나 아직 중복검사진행않았다. 이메일 중복 체크 하자.
+            //함수를 따로 선언해서, 문제없으면 사용가능한이메일이다 라고하자.
+            //이메일 중복 체크(그러나 버튼을 만들자. 그게 더 효율적이다. 그러나 그냥하자..)
+            fetchDuplicateCheck(inputVal);
+            return;
+        }
+
+        saveInputState({ //여기다 작성한 이유는, 비동기 체크가 진행 되기 전에는 메세지 띄우긴해야하니까.
+            key: 'email',
+            inputVal,
+            msg,
+            flag
+        }); 
     };
 
 
@@ -199,28 +278,71 @@ const Join = () => {
         });
 
 
-    };
-
-
-
-
-
-
-
-
-
-    const joinButtonClickHandler = e => { //이벤트가동작하는지 그냥 확인하자.
-        e.preventDefault(); //form의 submit기능이 안됨! 일부러막음.
-
-        //const $nameInput = document.getElementById('username');
-        //console.log($nameInput.value); //요소얻었기때문에 $
-
-        console.log(userValue);
     }
 
 
 
 
+    //4개의 입력칸이 모두 검증에 통과했는지 여부를 검사 -> 커렉트에서확인가능 -> Correct가 모두 true면되잖아.
+    const isValid = () => {
+        for(const key in correct){ //객체기 때문에 of가아닌 in. correct에 key(userName, password 등이온다)값이 온다.
+            const flag = correct[key];
+            if(!flag) return false;
+             return false;
+        }
+        return true;
+    }
+
+
+
+
+    //회원 가입 처리 서버 요청
+    const fetchsignUpPost = () => {
+        fetch(API_BASE_URL, {
+            method: 'POST',
+            headers: {'content-type' : 'application/json'},
+            body: JSON.stringify(userValue)
+        })
+        .then(res => {
+            if(res.status === 200){
+                alert('회원가입에 성공했습니다.');
+                //로그인 페이지로 리다이렉트하자. 임포트하러위로.
+                //window.location.href = '/login'; 이거말고, nagation에 담아놨으니
+                redirection('/login');
+
+
+            } else {
+                alert('서버와의 통신이 원활하지 않습니다.');
+            }
+        })
+    }
+
+
+
+
+
+    //회원가입 버튼 클릭 이벤트 핸들러
+    const joinButtonClickHandler = e => { //이벤트가동작하는지 그냥 확인하자. 버튼누르면 패치가 진행되니 깔끔하게될듯
+        e.preventDefault(); //form의 submit기능이 안됨! 일부러막음.
+
+        //const $nameInput = document.getElementById('username');
+        //console.log($nameInput.value); //요소얻었기때문에 $
+
+        //console.log(userValue);
+
+        //회원 가입 서버 요청
+        if(isValid()){
+            fetchsignUpPost();
+            alert('회원 가입 정보를 서버에 전송합니다.');
+        } else {
+            alert('입력란을 다시 확인해주세요!');
+        }
+
+
+        
+
+
+    }
 
     
     return (
@@ -320,8 +442,10 @@ const Join = () => {
                 </Grid>
             </form>
         </Container>
-      );
+      
+    );
+                    
 }
 
-export default Join
 
+export default Join

@@ -5,6 +5,10 @@ import TodoHeader from './TodoHeader';
 import './scss/TodoTemplate.scss';
 //'./scss/TodoTemplate.scss';
 
+import { API_BASE_URL as BASE, TODO } from '../../config/host-config'; //config의 host-config.js 붙이기. 이 2개의 내용을 붙인다.
+
+
+
 
 
 const TodoTemplate = () => {
@@ -14,8 +18,8 @@ const TodoTemplate = () => {
   const [todos, setTodos] = useState([]);
   //서버에 할일 목록(json으로받음)을 요청(fetch)해서 받아와야 함.
 
-  const API_BASE_URL = 'http://localhost:8181/api/todos';
-
+  //const API_BASE_URL = 'http://localhost:8181/api/todos'; 위에 임포트해줬으니 아래처럼쓰자.
+  const API_BASE_URL = BASE + TODO;
 
 
 
@@ -150,21 +154,21 @@ const TodoTemplate = () => {
 
           //map처럼 편하게쓸수있는 방법이 있다.
           //setTodos(todos.filter(todo => todo.id !== id));  //조건을 걸어서 조건에 맞는 요소만 반환해서 새로운 배열로 리턴해주는 filter!
-                                                           //즉, 주어진 배열(todos)의 값들을 순회하여 조건에 맞는 요소들만 모아서 새로운 배열로 리턴해준다!
-                                                           //즉, todo에는 todos의 요소들이 들어온다. > 객체들이 todo로 들어가면서 id들을 비교하면서 같으면 저 조건식에 false니까 걸러진다. > 내가 삭제하고하는 id를 가진 객체들만 필터링되고 나머진 새로운 배열로 선언되고 setTodos에 전달이 되겠다.
+                                                             //즉, 주어진 배열(todos)의 값들을 순회하여 조건에 맞는 요소들만 모아서 새로운 배열로 리턴해준다!
+                                                             //즉, todo에는 todos의 요소들이 들어온다. > 객체들이 todo로 들어가면서 id들을 비교하면서 같으면 저 조건식에 false니까 걸러진다. > 내가 삭제하고하는 id를 가진 객체들만 필터링되고 나머진 새로운 배열로 선언되고 setTodos에 전달이 되겠다.
      
-                                                           fetch(`${API_BASE_URL}/${id}`, {
-                                                            method: 'DELETE'
-                                                          })
-                                                            .then(res => res.json())
-                                                            .then(json => {
-                                                              setTodos(json.todos);
-                                                            });
+          fetch(`${API_BASE_URL}/${id}`, {
+             method: 'DELETE'
+          })
+            .then(res => res.json())
+            .then(json => {
+            setTodos(json.todos);
+        });
      
      
      
-                                                          };
-
+      };
+    
 
         //할 일 체크 처리 함수
         const checkTodo = (id, done) => {
