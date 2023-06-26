@@ -4,19 +4,44 @@ import TodoMain from './TodoMain';
 import TodoHeader from './TodoHeader';
 import './scss/TodoTemplate.scss';
 //'./scss/TodoTemplate.scss';
-
 import { API_BASE_URL as BASE, TODO } from '../../config/host-config'; //config의 host-config.js 붙이기. 이 2개의 내용을 붙인다.
-
+import { useNavigate } from 'react-router-dom';
+import { getLoginUserInfo } from '../../util/login-utils';
+import { Spinner } from 'reactstrap';
 
 
 
 
 const TodoTemplate = () => {
 
+  //로딩 상태값 관리 0626
+  const [loading, setLoading] = useState(true); //기본값은 트루로줌
+  
+
+
+  const redirection = useNavigate();//fetch보냈는데 403에러뜨면 다른곳으로 돌려야지. 로그인하고와라. 즉, 로그인해야 보여줄것. 0626
+
+
+  //로그인 인증 토큰 얻어오기 0626
+  //const token = getLoginUserInfo().token; 이렇게써도되는데, 아래껄로하자.
+  const {token} = getLoginUserInfo();
+
+
+
+  //요청 헤더 설정
+  const requestHeader = {
+    'content-type' : 'application/json',
+    'Authorization' : 'Bearer ' + token
+  };
+
+
+
 
   //todos 배열을 상태관리해야한다(useState 사용)
   const [todos, setTodos] = useState([]);
   //서버에 할일 목록(json으로받음)을 요청(fetch)해서 받아와야 함.
+
+
 
   //const API_BASE_URL = 'http://localhost:8181/api/todos'; 위에 임포트해줬으니 아래처럼쓰자.
   const API_BASE_URL = BASE + TODO;
@@ -91,7 +116,7 @@ const TodoTemplate = () => {
 
          fetch(API_BASE_URL, {
            method : 'POST',
-           headers : { 'content-type' : 'application/json'},
+           headers : requestHeader,
            body : JSON.stringify(newTodo) //변환해서줌
          })
          .then(res => res.json())
@@ -158,7 +183,8 @@ const TodoTemplate = () => {
                                                              //즉, todo에는 todos의 요소들이 들어온다. > 객체들이 todo로 들어가면서 id들을 비교하면서 같으면 저 조건식에 false니까 걸러진다. > 내가 삭제하고하는 id를 가진 객체들만 필터링되고 나머진 새로운 배열로 선언되고 setTodos에 전달이 되겠다.
      
           fetch(`${API_BASE_URL}/${id}`, {
-             method: 'DELETE'
+             method: 'DELETE',
+             headers : requestHeader
           })
             .then(res => res.json())
             .then(json => {
@@ -172,10 +198,12 @@ const TodoTemplate = () => {
 
         //할 일 체크 처리 함수
         const checkTodo = (id, done) => {
+        
+
 
           fetch(API_BASE_URL, {
             method: 'PUT',
-            headers: {'content-type' : 'application/json'},
+            headers: requestHeader,
             body: JSON.stringify({
               'done': !done,
               'id' : id
@@ -225,15 +253,31 @@ const TodoTemplate = () => {
           
         
         //페이지가 렌더링 됨과 동시에 할 일 목록을 요청해서 뿌려주겠다!!
-        fetch(API_BASE_URL) //fetch의 첫번째 값으로는 url줬지. 두번째 매개값으로는 요청에 관련된 정보를 객체 형식으로 줌.  근데 여기선 X
-          .then(res => res.json()) //그 결과에서 제이슨만 뽑아.
-          .then(json => { //제이슨 데이터로 뽑아 낸 것을 어떻게 진행(작성)할지 적자
-            console.log(json.todos);
-
-
+        fetch(API_BASE_URL, { //fetch의 첫번째 값으로는 url줬지. 두번째 매개값으로는 요청에 관련된 정보를 객체 형식으로 줌.  근데 여기선 X
+          method : 'GET',
+          headers : requestHeader
+        }) 
+          .then(res => {
+            if(res.status === 200) return res.json(); //그 결과에서 제이슨만 뽑아. -> 0626
+          else if(res.status === 403){
+            alert('로그인이 필요한 서비스 입니다. 당신은 허가되지 않았습니다.');
+            redirection('/login'); //로그인화면으로 보냄
+            return; //강제종료
+          } else {
+            alert('관리자에게 문의하세요');
+          }
+          return;
+        })
+            .then(json => { //제이슨 데이터로 뽑아 낸 것을 어떻게 진행(작성)할지 적자
+            //console.log(json.todos);
 
             //fetch를 통해 받아온 데이터를 상태 변수에 할당. (배열자체를 바꾼거임!)
             setTodos(json.todos);
+
+
+            //로딩 완료 처리
+            setLoading(false);
+
           });
 
       }, []);
@@ -241,17 +285,33 @@ const TodoTemplate = () => {
 
 
 
-                                                   
+  //로딩이 끝난 후, 보여줄 컴포넌트
+  const loadEndedPage = (
+    <>
+     <TodoHeader count={countRestTodo}/>
+        <TodoMain todoList={todos} remove={removeTodo} check={checkTodo}/>
+        {/*todoMain을 호출하면서 값이날라오겠지. 그거를 TodoMain이 받아야한다. 가서 ()안에 props적어주자*/}
+       
+        <TodoInput addTodo={addTodo}/> 
+    </>
+  );                                           
+
+
+    //로딩 중일 때, 보여줄 컴포넌트
+    const loadingPage = (
+      <div className='loading'>
+        <Spinner color='danger'> 
+          loading...
+        </Spinner>
+      </div>
+    );
+
 
 
 
   return (
     <div className='TodoTemplate'> 
-        <TodoHeader count={countRestTodo}/>
-        <TodoMain todoList={todos} remove={removeTodo} check={checkTodo}/>
-        {/*todoMain을 호출하면서 값이날라오겠지. 그거를 TodoMain이 받아야한다. 가서 ()안에 props적어주자*/}
-       
-        <TodoInput addTodo={addTodo}/> 
+       { loading ? loadingPage : loadEndedPage }
     </div>
 
 

@@ -5,9 +5,14 @@ import {Button, Container, Grid,
     TextField, Typography, Link} from "@mui/material";
 import { API_BASE_URL as BASE, USER } from '../../config/host-config';
 import { json } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
 
 
 const Login = () => {
+
+    const redirection = useNavigate();  //0626
+
 
     const REQUEST_URL = BASE + USER + '/signin';
 
@@ -42,11 +47,37 @@ const Login = () => {
         }
 
         //제이슨도 마찬가지자. 앞에 await붙이자
-        const json = await res.json(); //제이슨도 변수로 바로 받아볼수있다.
-        console.log(json);
+        //const json = await res.json(); //제이슨도 변수로 바로 받아볼수있다.
+        const { token, userName, email, role} = await res.json();
+        
+        //console.log(json);
+
+
+        
+       
+
+
+
+
+        //json에 담긴 인증정보를 클라이언트에 보관 -> 로그인 한 사람 안한사람 구분 0626
+        //토큰, 이름도 보관해주려한다.
+        // 1. 로컬 스토리지 -> 브라우저가 종료되어도 보관이 된다.
+        // 2. 세션 스토리지 -> 브라우저가 종료되면 사라진다.(서버가 아니고 브라우저가 제공(저장하는 공간)하는 거다..)
+        
+        localStorage.setItem('ACCESS_TOKEN', token ); //괄호안에는 저장할값을주자. 키값과 밸류다. 로컬스토리지와 셋아이템은 메서드다.
+        localStorage.setItem('LOGIN_USERNAME', userName );
+        localStorage.setItem('USER_ROLE', role );
+        //로컬 싫으면 localStroage를 sessionStorage만 써주면 된다! -> 브라우저가 종료되면 세션모두삭제.
+
+
+         //홈으로 리다이렉트 0626
+         redirection('/');
+
+
+
     };
 
-
+    
 
 
 
