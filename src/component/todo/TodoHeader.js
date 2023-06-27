@@ -1,7 +1,7 @@
 import React from 'react'
 import './scss/TodoHeader.scss';
 
-const TodoHeader = ({count}) => {
+const TodoHeader = ({count, promote}) => {
 
   const today = new Date();
 
@@ -13,15 +13,33 @@ const TodoHeader = ({count}) => {
 
   const dayName = today.toLocaleDateString('ko-KR', { weekday: 'long' }); //요일 -> weekday는 위에 안쓰고 여기다가 따로 써줬다. 아래 className이 따로 있으니까.
 
+  const upgrade = () => {
+    if(window.confirm('프리미엄으로 업그레이드 하시겠습니까?')){
+      promote();
+    }
+  }
+
+
+  // 등급에 따른 조건별 렌더링 0627
+  const gradeView = () => {
+    const role = localStorage.getItem('USER_ROLE');
+    console.log(role);
+    if (role === 'COMMON') {
+      return <span className='promote badge bg-warning' onClick={upgrade}>일반회원</span>
+    } else if(role === 'PREMIUM') {
+      return <span className='promote badge bg-danger' onClick={upgrade}>프리미엄</span>
+    } else if(role === 'ADMIN') {
+      return <span className='promote badge bg-info'>관리자</span>
+    }
+
+  }
 
   return (
     <header>
-        {/* <h1>2023년 6월 13일</h1> */}
         <h1>{dateString}</h1>
-        
-        {/* <div className='day'>화요일</div> */}
         <div className='day'>{dayName}</div>
-        <div className='tasks-left'>할 일은 {count()}개 남음</div>
+        <div className='tasks-left'>할 일 {count()}개 남음</div>
+        { gradeView() }
     </header>
   )
 }

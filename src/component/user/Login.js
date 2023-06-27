@@ -1,17 +1,28 @@
 //0622
 
-import React from 'react'
+import React, { useContext } from 'react'
 import {Button, Container, Grid,
     TextField, Typography, Link} from "@mui/material";
 import { API_BASE_URL as BASE, USER } from '../../config/host-config';
 import { json } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import AuthContext from '../../util/AuthContext';
 
 
 
 const Login = () => {
 
+
     const redirection = useNavigate();  //0626
+
+    
+
+
+
+    //App.js에서 감싸져있는 AuthContext에서 onLogin이라는 함수를 가져온다.어떻게?
+    const { onLogin, isLoggedIn } = useContext(AuthContext);
+
+    
 
 
     const REQUEST_URL = BASE + USER + '/signin';
@@ -48,7 +59,7 @@ const Login = () => {
 
         //제이슨도 마찬가지자. 앞에 await붙이자
         //const json = await res.json(); //제이슨도 변수로 바로 받아볼수있다.
-        const { token, userName, email, role} = await res.json();
+        const { token, userName, email, role } = await res.json();
         
         //console.log(json);
 
@@ -64,10 +75,16 @@ const Login = () => {
         // 1. 로컬 스토리지 -> 브라우저가 종료되어도 보관이 된다.
         // 2. 세션 스토리지 -> 브라우저가 종료되면 사라진다.(서버가 아니고 브라우저가 제공(저장하는 공간)하는 거다..)
         
-        localStorage.setItem('ACCESS_TOKEN', token ); //괄호안에는 저장할값을주자. 키값과 밸류다. 로컬스토리지와 셋아이템은 메서드다.
-        localStorage.setItem('LOGIN_USERNAME', userName );
-        localStorage.setItem('USER_ROLE', role );
+        //localStorage.setItem('ACCESS_TOKEN', token ); //괄호안에는 저장할값을주자. 키값과 밸류다. 로컬스토리지와 셋아이템은 메서드다.
+        //localStorage.setItem('LOGIN_USERNAME', userName );
+        //localStorage.setItem('USER_ROLE', role );
         //로컬 싫으면 localStroage를 sessionStorage만 써주면 된다! -> 브라우저가 종료되면 세션모두삭제.
+
+
+        // 로그인성공했으니 Context API를 사용하여 로그인 상태를 업데이트합니다.
+        onLogin(token, userName, role);
+
+
 
 
          //홈으로 리다이렉트 0626
@@ -75,7 +92,7 @@ const Login = () => {
 
 
 
-    };
+    
 
     
 
@@ -107,7 +124,7 @@ const Login = () => {
     //         console.log(result); //확인해보자
     //     })
     // } 신 문법으로쓰자. 다 주석~
-    
+    }
 
 
 
@@ -121,7 +138,7 @@ const Login = () => {
         fetchLogin();
 
 
-    };
+    }
 
 
 
@@ -181,6 +198,6 @@ const Login = () => {
         </Container>
     );
     
-}    
-
-export default Login
+       
+}
+export default Login;

@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import TodoInput from './TodoInput';
 import TodoMain from './TodoMain';
 import TodoHeader from './TodoHeader';
 import './scss/TodoTemplate.scss';
 //'./scss/TodoTemplate.scss';
-import { API_BASE_URL as BASE, TODO } from '../../config/host-config'; //config의 host-config.js 붙이기. 이 2개의 내용을 붙인다.
+import { API_BASE_URL as BASE, TODO, USER } from '../../config/host-config'; //config의 host-config.js 붙이기. 이 2개의 내용을 붙인다.
 import { useNavigate } from 'react-router-dom';
 import { getLoginUserInfo } from '../../util/login-utils';
 import { Spinner } from 'reactstrap';
-
+import AuthContext from '../../util/AuthContext';
 
 
 
@@ -17,14 +17,15 @@ const TodoTemplate = () => {
   //로딩 상태값 관리 0626
   const [loading, setLoading] = useState(true); //기본값은 트루로줌
   
+//로그인 인증 토큰 얻어오기 0626
+  //const token = getLoginUserInfo().token; 이렇게써도되는데, 아래껄로하자.
+  const [token, setToken] = useState(getLoginUserInfo().token);
 
 
   const redirection = useNavigate();//fetch보냈는데 403에러뜨면 다른곳으로 돌려야지. 로그인하고와라. 즉, 로그인해야 보여줄것. 0626
 
-
-  //로그인 인증 토큰 얻어오기 0626
-  //const token = getLoginUserInfo().token; 이렇게써도되는데, 아래껄로하자.
-  const {token} = getLoginUserInfo();
+  const { setUserInfo } =  useContext(AuthContext); 
+  
 
 
 
@@ -38,13 +39,23 @@ const TodoTemplate = () => {
 
 
   //todos 배열을 상태관리해야한다(useState 사용)
-  const [todos, setTodos] = useState([]);
+  //const [todos, setTodos] = useState([]);
   //서버에 할일 목록(json으로받음)을 요청(fetch)해서 받아와야 함.
 
 
 
   //const API_BASE_URL = 'http://localhost:8181/api/todos'; 위에 임포트해줬으니 아래처럼쓰자.
   const API_BASE_URL = BASE + TODO;
+
+  const API_USER_URL = BASE + USER; //0627
+
+
+  //todos 배열을 상태관리해야한다(useState 사용)
+  const [todos, setTodos] = useState([]);
+  //서버에 할일 목록(json으로받음)을 요청(fetch)해서 받아와야 함.
+
+
+
 
 
 
@@ -99,7 +110,7 @@ const TodoTemplate = () => {
 
 
       const addTodo = todoText => {  //todoText가 아니라 아무말적어도됨
-        console.log('할 일 정보: ', todoText);
+        //console.log('할 일 정보: ', todoText);
 
         //그리고 밑으로 가서 return에 <TodoInput addTodo={addTodo}/> 적어주자
 
@@ -119,13 +130,22 @@ const TodoTemplate = () => {
            headers : requestHeader,
            body : JSON.stringify(newTodo) //변환해서줌
          })
-         .then(res => res.json())
-         .then(json => {
-         setTodos(json.todos); 
-         })
-
+         //.then(res => res.json())
+         //.then(json => {
+         //setTodos(json.todos); 
+         //})
+         .then(res => {
+          if(res.status === 200) return res.json();
+          else if(res.status === 401) {
+            alert('일반회원은 일정 등록이 5개로 제한됩니다 ㅠㅠ');
+          }
+        })
+        .then(json => {
+          json && setTodos(json.todos); //401에러터지면 이거 안오겠지
+        });
+      }
       
-
+      
 
 
 
@@ -171,7 +191,7 @@ const TodoTemplate = () => {
                     //그러면 setTodos();는 불렀는데 어떻게할까..배열을가져와서넣어야하는데..즉, newTodo만써서 객체를 배열로 교환한 상탠데,
                     //방법은 다음과 같다. todos의 복사본 배열을 하나 만들고 거기에 newTodo를 넣고 기존배열을 지우고 새로운배열자체로 갈아버리면된다.
                     //위로가서 복사하는 방법을 적용해보자 바로위에있다~      -> 0621 setTodos위로올려!
-      }
+      
 
       //할 일 삭제 처리 함수
       const removeTodo = id => { //id라는 변수 선언해야한다! 꼭! removeTodo를 todoitem까지 전달해야한다. 일단은 todoMain한테 보내고 props로 전달받은 todomain이 template한테 보내주게해야됨
@@ -215,7 +235,7 @@ const TodoTemplate = () => {
 
 
 
-          console.log(`체크한 Todo id: ${id}`);
+          //console.log(`체크한 Todo id: ${id}`);
 
           //배열 고차 함수.  
           //우리가 생각나는 대로 작성해보면,
@@ -237,14 +257,47 @@ const TodoTemplate = () => {
 
 
         //체크가 안된 할 일의 개수 카운트하기
-        const countRestTodo = () => { //이거 TodoHeader한테줘야됨. done이 false가 몇개인가? 를 세보면 된다.
+        //const countRestTodo = () => { //이거 TodoHeader한테줘야됨. done이 false가 몇개인가? 를 세보면 된다.
 
           // const filteredTodos =  todos.filter(todo => !todo.done);
           // return filteredTodos.length; 보다 더 짧게
 
-          return todos.filter(todo => !todo.done).length; //이거썼으니 프롭스선언하러가자. 아래 리턴문으로 ㄱㄱ
+          //return todos.filter(todo => !todo.done).length; //이거썼으니 프롭스선언하러가자. 아래 리턴문으로 ㄱㄱ
           
-        } 
+        //}
+        //체크가 안 된 할 일의 개수 카운트 하기
+  const countRestTodo = () => todos.filter(todo => !todo.done).length; 
+
+
+        //비동기 방식 등급 승격 함수
+  const fetchPromote = async() => {
+    
+    const res = await fetch(API_USER_URL + '/promote', {
+      method: 'PUT',
+      headers: requestHeader
+    });
+
+    if(res.status === 403) {
+      alert('이미 프리미엄 회원입니다.');
+    } else if(res.status === 200) {
+      const json = await res.json();
+      // console.log(json);
+      setUserInfo(json);
+      setToken(json.token);
+    }
+
+  }
+
+
+        //등급 승격 서버 요청(프리미엄)
+        const promote = () => {
+          //console.log('등극 승격 서버 요청!');
+          fetchPromote();
+
+
+        }
+
+
 
 
 
@@ -252,14 +305,16 @@ const TodoTemplate = () => {
       useEffect(() => { //useEffect는 실행하고자하는 함수, 두번째는 배열을 받는데, 배열 안에다가 다시 렌더링이 진행 될 때 어떤 상태변수가 렌더링되냐고 할때, 얘만 다시 렌더링해줄 수있는 것이 useEfect이다
           
         
-        //페이지가 렌더링 됨과 동시에 할 일 목록을 요청해서 뿌려주겠다!!
+        //페이지가 렌더링 됨과 동시에 할 일 목록을 요청해서 뿌려주겠다!!(로그인 했는지 안했는지 확인까지 들어간다!)
+
+
         fetch(API_BASE_URL, { //fetch의 첫번째 값으로는 url줬지. 두번째 매개값으로는 요청에 관련된 정보를 객체 형식으로 줌.  근데 여기선 X
           method : 'GET',
-          headers : requestHeader
+          headers : requestHeader //0626 //투두컨트롤러(인텔)의 //할 일 목록 요청 에 있다. 로그인을 했다면 토큰존재겠지.
         }) 
-          .then(res => {
+          .then(res => { 
             if(res.status === 200) return res.json(); //그 결과에서 제이슨만 뽑아. -> 0626
-          else if(res.status === 403){
+          else if(res.status === 403){ 
             alert('로그인이 필요한 서비스 입니다. 당신은 허가되지 않았습니다.');
             redirection('/login'); //로그인화면으로 보냄
             return; //강제종료
@@ -272,7 +327,10 @@ const TodoTemplate = () => {
             //console.log(json.todos);
 
             //fetch를 통해 받아온 데이터를 상태 변수에 할당. (배열자체를 바꾼거임!)
-            setTodos(json.todos);
+            //json데이터가 존재할떄만 부르자.
+            if(json) {
+              setTodos(json.todos);
+            }
 
 
             //로딩 완료 처리
@@ -288,7 +346,11 @@ const TodoTemplate = () => {
   //로딩이 끝난 후, 보여줄 컴포넌트
   const loadEndedPage = (
     <>
-     <TodoHeader count={countRestTodo}/>
+     <TodoHeader count={countRestTodo}
+      promote={promote} //0627
+
+     
+     />
         <TodoMain todoList={todos} remove={removeTodo} check={checkTodo}/>
         {/*todoMain을 호출하면서 값이날라오겠지. 그거를 TodoMain이 받아야한다. 가서 ()안에 props적어주자*/}
        
@@ -317,5 +379,5 @@ const TodoTemplate = () => {
 
   );
 }
-
+  
 export default TodoTemplate;

@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import {Button, Container, Grid,
     TextField, Typography, Link} from "@mui/material";
 
+    //리다이렉트 사용하기
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL as BASE, USER } from '../../config/host-config';
 
@@ -55,6 +56,14 @@ const Join = () => {
     //검증 데이터를 상태변수에 저장하는 함수
     const saveInputState = ({key, inputVal, flag, msg}) => { //객체형태로 감싸서 넘기자
 
+
+        inputVal !== 'pass' && setUserValue({ //useState함수로 관리되는 함수는 setter로만 관리해야한다를 잊지말자.
+            ...userValue, //나머지 값들까지 유지하되, userName만 적혀있으면 userName만 바꿔주겠다.
+            [key]: inputVal
+        }); //둘다 true여야하게끔~
+
+
+
         setMessage({
             ...message,
             //userName: msg 원래 이건데 아래껄로 바꾸자.
@@ -68,14 +77,6 @@ const Join = () => {
         //console.log(e.target.value);  //이거(value)를 useState객체 안의 userName프로퍼티에 저장해야겠지.
         //const inputVal = e.target.value;
          
-
-
-        inputVal !== 'pass' && setUserValue({ //useState함수로 관리되는 함수는 setter로만 관리해야한다를 잊지말자.
-            ...userValue, //나머지 값들까지 유지하되, userName만 적혀있으면 userName만 바꿔주겠다.
-            [key]: inputVal
-        }); //둘다 true여야하게끔~
-       
-
 
 
         setCorrect({
@@ -170,13 +171,13 @@ const Join = () => {
 
         //나와서, 따로 부를게있음
         setUserValue({...userValue, email: email});
-        setMessage({...message, email: msg});
-        setCorrect({...correct, email: flag});
-    })
-    .catch(err => {
-        console.log('서버 통신이 원활하지 않습니다.');
-    });
-};
+                setMessage({...message, email: msg});
+                setCorrect({...correct, email: flag});
+            })
+            .catch(err => {
+                console.log('서버 통신이 원활하지 않습니다.');
+            });
+    };
 
 
     
@@ -189,7 +190,7 @@ const Join = () => {
         const inputVal = e.target.value;
 
         //중복검사 진행 전에, 값이 유효한지 체크해야지. 정규표현식이 필요하겠지
-        const emailRegex = /^[a-z0-9\.\-_]+@([a-z0-9\-]+\.)+[a-z]{2,6}$/;
+        const emailRegex = /^[a-z0-9.-_]+@([a-z0-9-]+\.)+[a-z]{2,6}$/;
         
         let msg, flag = false;
         if(!inputVal){
@@ -288,7 +289,6 @@ const Join = () => {
         for(const key in correct){ //객체기 때문에 of가아닌 in. correct에 key(userName, password 등이온다)값이 온다.
             const flag = correct[key];
             if(!flag) return false;
-             return false;
         }
         return true;
     }
@@ -333,7 +333,7 @@ const Join = () => {
         //회원 가입 서버 요청
         if(isValid()){
             fetchsignUpPost();
-            alert('회원 가입 정보를 서버에 전송합니다.');
+            //alert('회원 가입 정보를 서버에 전송합니다.');
         } else {
             alert('입력란을 다시 확인해주세요!');
         }

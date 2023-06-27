@@ -7,3 +7,17 @@ body {
   background-color: #e9ecef;
 }
 
+
+.wrapper {
+  display: flex;
+  flex-direction: column; /*방향은 수직*/
+  justify-content: space-between;
+  height: 100vh; /*세로길이는 항상 화면의 100%로 차지할수있도록*/
+}
+
+.content-wapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
