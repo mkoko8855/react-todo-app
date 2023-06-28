@@ -1,18 +1,27 @@
 //0622 0623
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useRef } from 'react' //0628 useRef는 요소를 기억하는 태그다. 요소취득할때 바닐라에서 document~~로했었잖아. 그거랑같음.
 import {Button, Container, Grid,
     TextField, Typography, Link} from "@mui/material";
 
     //리다이렉트 사용하기
-import { useAsyncError, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL as BASE, USER } from '../../config/host-config';
 import { useEffect } from 'react';
 import AuthContext from '../../util/AuthContext';
 import CustomSnackBar from '../layout/CustomSnackBar';
+import './Join.scss';
+
 
 //http://localhost:8181/api/auth
 const Join = () => {
+
+
+    //0628
+    //useRef로 태그 참조하기
+    const $fileTag = useRef();
+
+
 
     //리다이렉트 사용하기
     const redirection = useNavigate();
@@ -305,6 +314,33 @@ const Join = () => {
     }
 
 
+    //이미지 파일을 상태변수로 관리하자
+    const [imgFile, setImgFile] = useState(null);
+    
+
+
+
+
+
+    //0628
+    //이미지 파일을 선택했을 때 썸네일 뿌리기
+    const showThumbnailHandler = e => {
+        //첨부된 파일 정보를 얻자
+        const file = $fileTag.current.files[0]; //input태그가 갖고있는 프로퍼티중 files가있지. 그 안에 list가있지. 그 안에 0번인덱스에 우리가 첨부한 파일객체가있었다. f12로본거. 그거달라고한거다.
+        
+        //자바스크립트에서 제공하는 객체생성(FileReader)
+        const reader = new FileReader();
+
+        //파일의 정보를 읽자
+        reader.readAsDataURL(file);
+
+        //리더가 파일을 읽어들이면, 즉 다 읽었으면..
+        reader.onloadend = () => {
+                setImgFile(reader.result);
+        }
+    }
+
+
 
 
     //4개의 입력칸이 모두 검증에 통과했는지 여부를 검사 -> 커렉트에서확인가능 -> Correct가 모두 true면되잖아.
@@ -317,14 +353,31 @@ const Join = () => {
     }
 
 
+    //JSON을 Blob타입으로 변경 후 FormData에 넣기 0628
+    const userJsonBlob = new Blob(
+        [JSON.stringify(userValue)], //변환하고자하는타입
+        { type: 'application/json' } //전달해주는타입
+    );
+    
 
-
-    //회원 가입 처리 서버 요청
+    //회원 가입 처리 서버 요청   (0628수정)
     const fetchsignUpPost = () => {
+
+        // 이미지파일과 회원정보 JSON을 하나로 묶어야 함 0628
+        // FormData 객체를 활용해서!
+        const userFormData = new FormData();
+        userFormData.append('user', userJsonBlob); //'user'는 내가 임의로지었다. DTO변수명으로 짓는것이좋다.
+        userFormData.append('profileImage', $fileTag.current.files[0]);
+        //그러면 이제, 패치함수로 요청보낼 떄 바로 아래에
+        // headers: {'content-type' : 'application/json'}, 이게적혀있을텐데 주석처리하자.
+        // 즉, JSON타입을 따로 설정해줘야한다. 위로가자
+
+
         fetch(API_BASE_URL, {
             method: 'POST',
-            headers: {'content-type' : 'application/json'},
-            body: JSON.stringify(userValue)
+            //headers: {'content-type' : 'application/json'}, 0628
+            //body: JSON.stringify(userValue)
+            body: userFormData
         })
         .then(res => {
             if(res.status === 200){
@@ -379,6 +432,39 @@ const Join = () => {
                                 계정 생성
                             </Typography>
                         </Grid>
+
+
+
+                        {/*프로필 이미지 첨부할수 있는 기능 0628*/}
+                        <Grid item xs={12}>
+                             <div className="thumbnail-box" onClick={() => $fileTag.current.click()} > {/*사용자가 이거 클릭하면 input태그를 클릭한거처럼 동작되게*/}
+                                 <img
+                                      //src="../../assets/img/god.png" 이렇게쓰면안됨
+                                      //src={require("../../assets/img/god.png")} //이렇게. 그러나 모던하게..
+                                      //src={imgFile ? imgFile : require("../../assets/img/image-add.png")} //모던하게이것도괜찮고 
+                                      src={imgFile || require("../../assets/img/image-add.png")} //더간추릴꺼면 이렇게써도됨.
+
+                                     
+                                      alt="profile"
+
+                                 />
+                            </div>
+                            <label className='signup-img-label' htmlFor='profile-img'>프로필 이미지 추가</label>
+                            
+                            <input
+                             id='profile-img'
+                             type='file'
+                            style={{display: 'none'}}
+                            accept='image/*'
+                            ref={$fileTag}
+                            onChange={showThumbnailHandler}
+                            />
+                         </Grid>
+
+
+
+
+
                         <Grid item xs={12}>
                             <TextField
                                 autoComplete="fname"
