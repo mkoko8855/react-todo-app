@@ -16,7 +16,7 @@ const AuthContext = React.createContext({ //임포트직접하자.. import React
 
 //위에서 생성한 Context를 제공하는 함수를 선언하자. provide함수 선언해야한다.
 //이 컴포넌트를 통해 자식 컴포넌트들에게 인증 상태와 관련된 함수들을 전달 할 수 있다.
-export const AuthContextProvider = props => {
+export const AuthContextProvider = props => { //이 모든 용도는 위의 AuthContext값을 채워주려는거고, 값전달할떄는 위의 AutContext가 넘어간다.
     
 
     const [isLoggedIn, setIsLoggedIn] = useState(false); //useState로관리할거다. 기본값 false로.
@@ -27,12 +27,12 @@ export const AuthContextProvider = props => {
 
 
 
-
+    //로그인 중인지 아닌지 알아보려고(딱 한번) 
     //컴포넌트가 렌더링 될 때 localStorage에서 로그인 정보를 갖고 와서 상태를 설정.
     useEffect(() => {
         //렌더링 될떄, 로컬스토리지에서 로긴 성공하면 isLoggedIn을 1로 넣어줄꺼다. 이걸로 확인할꺼다
         if(localStorage.getItem('isLoggedIn') === '1'){
-            setIsLoggedIn(true);
+            setIsLoggedIn(true); //로그인 중이라는 뜻인 true를주자.
             setUserName(localStorage.getItem('LOGIN_USERNAME'));
         }
     }, []);
@@ -66,8 +66,8 @@ export const AuthContextProvider = props => {
 
 
     return (
-        <AuthContext.Provider value={{
-            isLoggedIn: isLoggedIn, /*뒤 키값 지워도됨. 이름같으니까.*/
+        <AuthContext.Provider value={{ 
+            isLoggedIn: isLoggedIn, /*뒤 키값 지워도됨. 이름같으니까. 아래로 쭉 자식에게 줄 값들을 세팅하자.*/
             userName: userName,
             onLogout: logoutHandler,
             onLogin: loginHandler,

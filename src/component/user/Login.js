@@ -1,12 +1,14 @@
 //0622
 
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {Button, Container, Grid,
     TextField, Typography, Link} from "@mui/material";
 import { API_BASE_URL as BASE, USER } from '../../config/host-config';
 import { json } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../util/AuthContext';
+import { red } from '@mui/material/colors';
+import CustomSnackBar from '../layout/CustomSnackBar';
 
 
 
@@ -20,9 +22,25 @@ const Login = () => {
 
 
     //App.js에서 감싸져있는 AuthContext에서 onLogin이라는 함수를 가져온다.어떻게?
-    const { onLogin, isLoggedIn } = useContext(AuthContext);
+    const { onLogin, isLoggedIn } = useContext(AuthContext); //isLoggedIn은 로그인중이냐 아니냐의 여부였다.
 
     
+    
+
+    //0628(CustomSnvckBar.js작성하고 여기로와서 이메서드작성함)
+    const[open, setOpen] = useState(false); //open은 스냅바로 작성한 경고창이 열려야하는지 닫혀야하는지에 대한 여부. 기본값은 닫혀있는 false주자.
+    useEffect(() => { //콜백함수안에는 실행할 함수 내용.
+        if (isLoggedIn) {
+            setOpen(true); //위에 오픈은 초기값으로 false를줬는데 true로바꾸는 것.
+            setTimeout(() => {
+                //3초뒤에시작할내용은
+                redirection('/'); //홈화면으로보내기~
+            }, 3000 ); //3초
+        }
+    }, [isLoggedIn, redirection]); //isLoggedIn과 redirection에 변화가 감지될때마다 재렌더링
+
+
+
 
 
     const REQUEST_URL = BASE + USER + '/signin';
@@ -59,7 +77,7 @@ const Login = () => {
 
         //제이슨도 마찬가지자. 앞에 await붙이자
         //const json = await res.json(); //제이슨도 변수로 바로 받아볼수있다.
-        const { token, userName, email, role } = await res.json();
+        const { token, userName, email, role } = await res.json(); //json에서 4개의값을꺼내는중.
         
         //console.log(json);
 
@@ -148,54 +166,59 @@ const Login = () => {
 
 
     return (
-        <Container component="main" maxWidth="xs" style={{ margin: "200px auto" }}>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <Typography component="h1" variant="h5">
-                        로그인
-                    </Typography>
-                </Grid>
-            </Grid>
-    
-            <form noValidate onSubmit={loginHandler}>
-    
+        <> {/*스냅바띄울때 컨테이너는 안보이게할꺼니까 프래그먼트넣어줬다.*/}
+            {!isLoggedIn && //isloggedin이 false면 이거보임(로그인아닌거)
+            <Container component="main" maxWidth="xs" style={{ margin: "200px auto" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <TextField
-                            variant="outlined"
-                            required
-                            fullWidth
-                            id="email"
-                            label="email address"
-                            name="email"
-                            autoComplete="email"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            variant="outlined"
-                            required
-                            fullWidth
-                            name="password"
-                            label="on your password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                        >
+                        <Typography component="h1" variant="h5">
                             로그인
-                        </Button>
+                        </Typography>
                     </Grid>
                 </Grid>
-            </form>
-        </Container>
+                <form noValidate onSubmit={loginHandler}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="email"
+                                label="email address"
+                                name="email"
+                                autoComplete="email"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant="outlined"
+                                required
+                                fullWidth
+                                name="password"
+                                label="on your password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                color="primary"
+                            >
+                                로그인
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Container>
+            }
+            <CustomSnackBar
+                open={open}
+            />
+        </>
     );
     
        

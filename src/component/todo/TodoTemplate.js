@@ -280,7 +280,7 @@ const TodoTemplate = () => {
     if(res.status === 403) {
       alert('이미 프리미엄 회원입니다.');
     } else if(res.status === 200) {
-      const json = await res.json();
+      const json = await res.json(); //재발근한 토큰을 돌려주는데, 우리는 json으로 받아서 setUSerINfo랑 setToken한테 다시넣자.
       // console.log(json);
       setUserInfo(json);
       setToken(json.token);
