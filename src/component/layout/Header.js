@@ -5,12 +5,24 @@ import './header.css';
 import { Link, redirect, useNavigate } from 'react-router-dom';
 import { isLogin, getLoginUserInfo } from '../../util/login-utils'; //0626
 import AuthContext from '../../util/AuthContext';
-
+import { API_BASE_URL, USER } from '../../config/host-config';
 
 //0622
 const Header = () => {
     
+
+    const profileRequestURL = `${API_BASE_URL}${USER}/load-profile`;
+
+
     const redirection = useNavigate(); //0626
+
+
+
+
+
+    //프로필 이미지 url 상태 변수 0629
+    const [profileUrl, setProfileUrl] = useState(null);
+
 
 
     //AuthContext에서 로그인 상태와 onLogout 함수를 가져오자.
@@ -46,6 +58,43 @@ const Header = () => {
      //주석처리0627
      
 
+//0629
+const fetchProfileImage = async() => {
+    //fetch요청을 보낼꺼니 url이필요하잖아. 임포트하자 import { API_BASE_URL, USER } from '../../config/host-config';
+    //임포트해주고 변수하나선언하자 -> 위로가서 const profileRequestURL = `${API_BASE_URL}${USER}/load-profile`; 선언해주고 다시여기로와서,
+    const res = await fetch(profileRequestURL, {
+        method: 'GET',
+        headers: {'Authorization' : 'Bearer ' + localStorage.getItem('ACCESS_TOKEN')} //토큰꺼내기~
+    });
+
+    if (res.status === 200) {
+        //res.json(); 이거아니다. json데이터아니잖아. 그럼어떻게?
+        //서버에서는 직렬화된 이미지가 응답된다.(바이트로 변환된 이미지가 온다.)
+        const profileBlob = await res.blob();
+        //우린 blob으로받았으니, 해당 이미지를 imgUrl로 변경해야한다.
+        const imgUrl = window.URL.createObjectURL(profileBlob); //이건 blob형태를 url로바꿔준다.
+        
+        setProfileUrl(imgUrl);
+    } else { //그리고 status가 200이 아니면 에러니까. (메세지가오겠지?)
+        const err = await res.text();
+        setProfileUrl(null);
+
+    }
+
+}
+
+
+//0629
+useEffect(() => {
+    fetchProfileImage();
+
+
+},[isLoggedIn]); //isLoggedIn의 변화가 생기면 fetchProfileImage()가 동작해라!
+
+
+
+
+
      return (
         <AppBar position="fixed" style={{
             background: '#38d9a9',
@@ -67,7 +116,21 @@ const Header = () => {
                                     : '오늘'
                                 }
                                 의 할일
-                            </Typography>   
+                            </Typography>
+                            
+                            {isLoggedIn && 
+                            <img
+                                src={profileUrl || require('../../assets/img/anonymous.jpg')}
+                                alt='프로필 사진'
+                                style={{
+                                    marginLeft: 20,
+                                    width: 75,
+                                    height: 75,
+                                    borderRadius: '50%'
+                                }}
+                            
+                            />
+                        }
                         </div>
                     </Grid>
                     
