@@ -11,7 +11,7 @@ import { API_BASE_URL, USER } from '../../config/host-config';
 const Header = () => {
     
 
-    const profileRequestURL = `${API_BASE_URL}${USER}/load-profile`;
+    const profileRequestURL = `${API_BASE_URL}${USER}/load-s3`; //0704
 
 
     const redirection = useNavigate(); //0626
@@ -68,13 +68,20 @@ const fetchProfileImage = async() => {
     });
 
     if (res.status === 200) {
+        //서버에서는 이제 s3 url이 응답된다.
+        const imgUrl = await res.text();
+        setProfileUrl(imgUrl);
+
         //res.json(); 이거아니다. json데이터아니잖아. 그럼어떻게?
         //서버에서는 직렬화된 이미지가 응답된다.(바이트로 변환된 이미지가 온다.)
-        const profileBlob = await res.blob();
-        //우린 blob으로받았으니, 해당 이미지를 imgUrl로 변경해야한다.
-        const imgUrl = window.URL.createObjectURL(profileBlob); //이건 blob형태를 url로바꿔준다.
         
-        setProfileUrl(imgUrl);
+        //const profileBlob = await res.blob(); 0704주석
+        
+        //우린 blob으로받았으니, 해당 이미지를 imgUrl로 변경해야한다.
+        
+        //const imgUrl = window.URL.createObjectURL(profileBlob); //이건 blob형태를 url로바꿔준다. 0704 주석
+        
+        //setProfileUrl(imgUrl); 0704 주석
     } else { //그리고 status가 200이 아니면 에러니까. (메세지가오겠지?)
         const err = await res.text();
         setProfileUrl(null);
