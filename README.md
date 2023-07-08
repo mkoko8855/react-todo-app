@@ -7,22 +7,22 @@
 $ npm install -g create-react-app
 
 ```
-3. react 프로젝트 생성
+3. react 프로젝트 생성 >
 ```
 $ npx create-react-app 프로젝트 이름
 ```
 
-4. react 프로젝트 실행(react 서버 가동)
+4. react 프로젝트 실행(react 서버 가동) >
 ```
 $ cd 프로젝트 폴더로 이동 후
 $ npm start
 ```
 
 실행을 해보면,
-http://localhost:3000 에서 프론트엔드 서버실행된다.
+http://localhost:3000 에서 프론트엔드 서버실행된다. >
 
 
-5. 추가 라이브러리(react-todo-app에서 사용할 라이브러리를 다운 받을 것.)
+5. 추가 라이브러리(react-todo-app에서 사용할 라이브러리를 다운 받을 것.) >
 ```
 $ npm install react-icons  // 아이콘
 $ npm install classnames   // 클래스 add/remove 편리한거
